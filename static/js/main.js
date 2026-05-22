@@ -2,6 +2,8 @@
 let startDate = null;
 let currentAuthor = null;
 let currentEventPhotos = [];
+let currentDeletingId = null;
+let currentDeletingType = null;
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
@@ -140,12 +142,13 @@ function loadTimelineEvents() {
                     photosHtml += '</div>';
                 }
                 
-                eventDiv.innerHTML = `
-                    <div class="timeline-card-date">${escapeHtml(event.date)}</div>
-                    <div class="timeline-card-title">${escapeHtml(event.title)}</div>
-                    <div class="timeline-card-desc">${escapeHtml(event.description || '💕 memoir 💕')}</div>
-                    ${photosHtml}
-                `;
+               eventDiv.innerHTML = `
+    <div class="timeline-card-delete" onclick="event.stopPropagation(); deleteTimelineEvent(${event.id}, '${escapeHtml(event.title)}')">🗑️</div>
+    <div class="timeline-card-date">${escapeHtml(event.date)}</div>
+    <div class="timeline-card-title">${escapeHtml(event.title)}</div>
+    <div class="timeline-card-desc">${escapeHtml(event.description || '💕 Memory 💕')}</div>
+    ${photosHtml}
+`;
                 timeline.appendChild(eventDiv);
             });
             
@@ -226,7 +229,7 @@ function previewEventPhotos() {
     countDisplay.style.marginTop = '10px';
     countDisplay.style.fontSize = '12px';
     countDisplay.style.color = '#d4728a';
-    countDisplay.textContent = `已选择 ${files.length} 张照片`;
+    countDisplay.textContent = `selected ${files.length} photos`;
     preview.appendChild(countDisplay);
 }
 
@@ -251,7 +254,7 @@ async function uploadEventPhotos() {
             return [];
         }
     } catch (error) {
-        console.error('上传照片失败:', error);
+        console.error('Failed to upload photos:', error);
         return [];
     }
 }
@@ -350,7 +353,7 @@ function viewEventDetails(event) {
             const photoDiv = document.createElement('div');
             photoDiv.className = 'event-photo-item';
             photoDiv.style.cssText = 'cursor:pointer; border-radius:12px; overflow:hidden; transition:transform 0.3s;';
-            photoDiv.onclick = () => openPhotoModal(`/static/uploads/${photo}`, `${event.title} - 照片${idx+1}`);
+            photoDiv.onclick = () => openPhotoModal(`/static/uploads/${photo}`, `${event.title} - Photo ${idx+1}`);
             photoDiv.innerHTML = `<img src="/static/uploads/${photo}" style="width:100%; height:150px; object-fit:cover;" alt="${event.title}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">`;
             photosGallery.appendChild(photoDiv);
         });
@@ -391,13 +394,14 @@ function loadMessages() {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message-card';
                 messageDiv.innerHTML = `
-                    <div class="message-avatar">${avatar}</div>
-                    <div class="message-content-wrapper">
-                        <div class="message-author ${authorClass}">${authorName}</div>
-                        <div class="message-text">${escapeHtml(message.content)}</div>
-                        <div class="message-date">${message.created_at}</div>
-                    </div>
-                `;
+    <div class="message-avatar">${avatar}</div>
+    <div class="message-content-wrapper">
+        <div class="message-author ${authorClass}">${authorName}</div>
+        <div class="message-text">${escapeHtml(message.content)}</div>
+        <div class="message-date">${message.created_at}</div>
+    </div>
+    <div class="message-delete" onclick="deleteMessage(${message.id})">🗑️</div>
+`;
                 messagesList.appendChild(messageDiv);
             });
         })
@@ -589,24 +593,93 @@ function loadPhotos() {
                 return;
             }
             
-            photos.forEach(photo => {
-                const item = document.createElement('div');
-                item.className = 'gallery-item';
-                item.onclick = () => openPhotoModal(`/static/uploads/${photo.filename}`, photo.description || 'sweet memories');
-                item.innerHTML = `
-                    <img src="/static/uploads/${photo.filename}" alt="${photo.description}" onerror="this.src='https://via.placeholder.com/250?text=No+Image'">
+            // 修改后的代码（注意传递了 photo.id）：
+photos.forEach(photo => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+   item.innerHTML = `
+                    <img src="/static/uploads/${photo.filename}" alt="${photo.description || 'memory'}" onerror="this.src='https://via.placeholder.com/250?text=No+Image'">
                     <div class="gallery-overlay">
-                        <div class="gallery-description">${escapeHtml(photo.description || 'sweet memories')}</div>
+                        <div class="gallery-description">${escapeHtml(photo.description || 'memory')}</div>
                         <div class="gallery-date">${photo.upload_date}</div>
+                        <button class="gallery-delete-btn" onclick="event.stopPropagation(); deletePhoto(${photo.id}, '${photo.filename}')">🗑️ delete</button>
                     </div>
                 `;
-                gallery.appendChild(item);
+                item.onclick = () => openPhotoModal(`/static/uploads/${photo.filename}`, photo.description || 'memory');                gallery.appendChild(item);
             });
         })
         .catch(error => console.error('Photos loading failed:', error));
 }
 
 // 打开照片放大模态框
+// 替换后的代码：
+function openPhotoModal(imgSrc, caption) {
+    // 调用带删除按钮的版本，但因为没有 photoId，所以删除按钮不显示
+    openPhotoModalWithDelete(imgSrc, caption, null);
+}
+
+// 关闭照片放大模态框
+function closePhotoModal() {
+    const modal = document.getElementById('photoModal');
+    if (modal) modal.style.display = 'none';
+    const deleteBtn = document.getElementById('photoModalDeleteBtn');
+    if (deleteBtn) deleteBtn.style.display = 'none';
+}
+// 在 closePhotoModal 函数后面添加
+function openPhotoModalWithDelete(imgSrc, caption, photoId) {
+    const modal = document.getElementById('photoModal');
+    const modalImg = document.getElementById('modalImage');
+    const captionText = document.getElementById('modalCaption');
+    
+    // 检查是否已有删除按钮
+    let deleteBtn = document.getElementById('photoModalDeleteBtn');
+    if (!deleteBtn) {
+        deleteBtn = document.createElement('button');
+        deleteBtn.id = 'photoModalDeleteBtn';
+        deleteBtn.innerHTML = '🗑️ delete';
+        deleteBtn.style.cssText = `
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #e88a9e, #d4728a);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            z-index: 1003;
+            transition: all 0.3s;
+        `;
+        deleteBtn.onmouseover = () => {
+            deleteBtn.style.transform = 'translateX(-50%) scale(1.05)';
+        };
+        deleteBtn.onmouseout = () => {
+            deleteBtn.style.transform = 'translateX(-50%) scale(1)';
+        };
+        document.body.appendChild(deleteBtn);
+    }
+    
+    // 如果有 photoId，显示删除按钮并绑定删除事件
+    if (photoId) {
+        deleteBtn.onclick = async () => {
+            modal.style.display = 'none';
+            deleteBtn.style.display = 'none';
+            await deletePhoto(photoId, '');
+        };
+        deleteBtn.style.display = 'block';
+    } else {
+        deleteBtn.style.display = 'none';
+    }
+    
+    modal.style.display = 'flex';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+    modalImg.src = imgSrc;
+    captionText.innerHTML = caption;
+}
+// 恢复原来的 openPhotoModal 函数
 function openPhotoModal(imgSrc, caption) {
     const modal = document.getElementById('photoModal');
     const modalImg = document.getElementById('modalImage');
@@ -617,12 +690,6 @@ function openPhotoModal(imgSrc, caption) {
     modal.style.alignItems = 'center';
     modalImg.src = imgSrc;
     captionText.innerHTML = caption;
-}
-
-// 关闭照片放大模态框
-function closePhotoModal() {
-    const modal = document.getElementById('photoModal');
-    if (modal) modal.style.display = 'none';
 }
 
 // 优化花瓣动画 - 白色鸡蛋花
@@ -776,6 +843,148 @@ window.onclick = function(event) {
     }
 }
 
+
+// 删除时间轴事件
+async function deleteTimelineEvent(eventId, eventTitle) {
+    const confirmed = await confirmDialog(`Are you sure you wanna delete 「${eventTitle}」 this memory?`, 'warning');
+    if (!confirmed) return;
+    
+    try {
+        const response = await fetch(`/api/timeline_events/${eventId}`, {
+            method: 'DELETE'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            showCustomAlert('Deleted successfully!💔', 'success');
+            loadTimelineEvents();
+            loadPhotos();
+        } else {
+            showCustomAlert('Delete failed: ' + data.error, 'error');
+        }
+    } catch (error) {
+        showCustomAlert('Delete failed, please try again', 'error');
+    }
+}
+
+// 删除留言
+async function deleteMessage(messageId) {
+    const confirmed = await confirmDialog('Are you sure you wanna delete this message?', 'warning');
+    if (!confirmed) return;
+    
+    try {
+        const response = await fetch(`/api/messages/${messageId}`, {
+            method: 'DELETE'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            showCustomAlert('Message deleted successfully', 'success');
+            loadMessages();
+        } else {
+            showCustomAlert('Delete failed: ' + data.error, 'error');
+        }
+    } catch (error) {
+        showCustomAlert('Delete failed, please try again', 'error');
+    }
+}
+
+// 删除相册照片
+async function deletePhoto(photoId, filename) {
+    const confirmed = await confirmDialog('Are you sure you wanna delete', 'warning');
+    if (!confirmed) return;
+    
+    try {
+        const response = await fetch(`/api/photos/${photoId}`, {
+            method: 'DELETE'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            showCustomAlert('Deleted successfully', 'success');
+            loadPhotos();
+        } else {
+            showCustomAlert('Delete failed: ' + data.error, 'error');
+        }
+    } catch (error) {
+        showCustomAlert('Delete failed, please try again', 'error');
+    }
+}
+
+// 自定义确认对话框
+function confirmDialog(message, type = 'info') {
+    return new Promise((resolve) => {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 10001;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        `;
+        
+        const icon = type === 'warning' ? '⚠️' : '💭';
+        modal.innerHTML = `
+            <div style="
+                background: linear-gradient(135deg, #fff8fa, #fff0f3);
+                border-radius: 30px;
+                padding: 2rem;
+                max-width: 350px;
+                text-align: center;
+                animation: slideDown 0.3s;
+            ">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">${icon}</div>
+                <div style="color: #d4728a; margin-bottom: 1.5rem;">${message}</div>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="confirm-no" style="
+                        background: #f0c0cc;
+                        color: #d4728a;
+                        border: none;
+                        padding: 0.6rem 1.5rem;
+                        border-radius: 50px;
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                    ">no</button>
+                    <button class="confirm-yes" style="
+                        background: linear-gradient(135deg, #e88a9e, #d4728a);
+                        color: white;
+                        border: none;
+                        padding: 0.6rem 1.5rem;
+                        border-radius: 50px;
+                        cursor: pointer;
+                        font-size: 0.9rem;
+                    ">yes</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.querySelector('.confirm-yes').onclick = () => {
+            modal.remove();
+            resolve(true);
+        };
+        
+        modal.querySelector('.confirm-no').onclick = () => {
+            modal.remove();
+            resolve(false);
+        };
+        
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                modal.remove();
+                resolve(false);
+            }
+        };
+    });
+}
+
 // 全局函数
 window.setStartDate = setStartDate;
 window.openAddEventModal = openAddEventModal;
@@ -788,3 +997,8 @@ window.addMessage = addMessage;
 window.openPhotoModal = openPhotoModal;
 window.closePhotoModal = closePhotoModal;
 window.closeViewEventModal = closeViewEventModal;
+// 添加删除相关的全局函数
+window.deleteTimelineEvent = deleteTimelineEvent;
+window.deleteMessage = deleteMessage;
+window.deletePhoto = deletePhoto;
+window.openPhotoModalWithDelete = openPhotoModalWithDelete;

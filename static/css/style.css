@@ -10,7 +10,6 @@ body {
     min-height: 100vh;
     color: #d4728a;
     overflow-x: hidden;
-    position: relative;
 }
 
 /* 自定义滚动条 */
@@ -59,7 +58,6 @@ body {
     background: linear-gradient(135deg, #e88a9e, #d4728a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
     font-family: 'Dancing Script', cursive;
 }
 
@@ -106,7 +104,7 @@ body {
     padding: 2rem;
 }
 
-/* 计时器区域 - 心电图效果 */
+/* 计时器区域 */
 .timer-section {
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(5px);
@@ -132,10 +130,18 @@ body {
     text-align: center;
 }
 
-.avatar-image {
-    font-size: 5rem;
-    filter: drop-shadow(0 5px 15px rgba(228, 112, 138, 0.3));
-    animation: float 3s ease-in-out infinite;
+.avatar-image img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e88a9e;
+    box-shadow: 0 5px 15px rgba(232, 138, 158, 0.3);
+    transition: transform 0.3s;
+}
+
+.avatar-image img:hover {
+    transform: scale(1.05);
 }
 
 .avatar-name {
@@ -144,9 +150,21 @@ body {
     margin-top: 0.5rem;
 }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+.change-avatar-btn {
+    display: block;
+    margin: 0.5rem auto 0;
+    padding: 0.3rem 0.8rem;
+    background: rgba(232, 138, 158, 0.15);
+    border: 1px solid #f0c0cc;
+    border-radius: 20px;
+    color: #d4728a;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.change-avatar-btn:hover {
+    background: rgba(232, 138, 158, 0.3);
 }
 
 .timer-ecg {
@@ -155,26 +173,10 @@ body {
     height: 120px;
 }
 
-.ecg-line {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
 .ecg-path {
     stroke: #e88a9e;
     stroke-width: 2;
     fill: none;
-    filter: drop-shadow(0 0 5px rgba(232, 138, 158, 0.5));
-}
-
-.ecg-blink {
-    animation: blink 1s ease-in-out infinite;
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
 }
 
 .heart-icon {
@@ -208,7 +210,6 @@ body {
     background: linear-gradient(135deg, #e88a9e, #d4728a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
     font-family: monospace;
 }
 
@@ -218,7 +219,6 @@ body {
     margin-top: 0.3rem;
 }
 
-/* 日期选择器 */
 .date-picker-wrapper {
     display: flex;
     gap: 1rem;
@@ -245,7 +245,7 @@ body {
 }
 
 /* 统一按钮样式 */
-.btn-primary, .btn-romantic {
+.btn-primary {
     background: linear-gradient(135deg, #e88a9e, #d4728a);
     color: white;
     border: none;
@@ -256,20 +256,13 @@ body {
     font-weight: 500;
     transition: all 0.3s;
     box-shadow: 0 4px 15px rgba(232, 138, 158, 0.3);
-    position: relative;
-    overflow: hidden;
 }
 
-.btn-primary:hover, .btn-romantic:hover {
+.btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(232, 138, 158, 0.4);
 }
 
-.btn-primary:active, .btn-romantic:active {
-    transform: translateY(0);
-}
-
-/* 添加事件按钮 */
 .add-event-btn {
     display: block;
     margin: 0 auto 2rem auto;
@@ -294,7 +287,6 @@ body {
     font-family: 'Dancing Script', cursive;
 }
 
-/* 横向时间轴 */
 .horizontal-timeline {
     display: flex;
     overflow-x: auto;
@@ -331,6 +323,33 @@ body {
     padding: 0.2rem;
 }
 
+.timeline-card-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    background: rgba(232, 138, 158, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+    transition: all 0.3s;
+    z-index: 10;
+    opacity: 0;
+}
+
+.timeline-card:hover .timeline-card-delete {
+    opacity: 1;
+}
+
+.timeline-card-delete:hover {
+    transform: scale(1.1);
+}
+
 .timeline-card-date {
     font-size: 0.85rem;
     color: #e88a9e;
@@ -354,7 +373,7 @@ body {
     margin: 0.5rem 0;
 }
 
-/* 照片布局样式 */
+/* 时间轴照片布局 */
 .timeline-photos {
     margin-top: 1rem;
     border-radius: 15px;
@@ -364,7 +383,6 @@ body {
 .timeline-photos.single-photo {
     display: flex;
     justify-content: center;
-    align-items: center;
     padding: 0.3rem;
 }
 
@@ -373,7 +391,6 @@ body {
     max-height: 160px;
     object-fit: cover;
     border-radius: 12px;
-    transition: transform 0.3s;
 }
 
 .timeline-photos.two-photos {
@@ -446,7 +463,6 @@ body {
 
 .avatar-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(232, 138, 158, 0.25);
 }
 
 .avatar-icon {
@@ -474,7 +490,33 @@ body {
     padding: 1rem;
     background: linear-gradient(135deg, #fff5f7, #ffeef2);
     border-radius: 20px;
-    animation: fadeInUp 0.5s ease-out;
+    position: relative;
+}
+
+.message-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    background: rgba(232, 138, 158, 0.8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+    transition: all 0.3s;
+    opacity: 0;
+}
+
+.message-card:hover .message-delete {
+    opacity: 1;
+}
+
+.message-delete:hover {
+    transform: scale(1.1);
 }
 
 .message-avatar {
@@ -509,7 +551,7 @@ body {
     color: #c0a0ac;
 }
 
-/* 自定义模态框 */
+/* 模态框 */
 .custom-modal {
     display: none;
     position: fixed;
@@ -520,17 +562,16 @@ body {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
-    animation: fadeIn 0.3s;
+    justify-content: center;
+    align-items: center;
 }
 
 .custom-modal-content {
     background: linear-gradient(135deg, #fff8fa, #fff0f3);
-    margin: 10% auto;
     padding: 2rem;
     border-radius: 30px;
     width: 90%;
     max-width: 500px;
-    animation: slideDown 0.3s;
     box-shadow: 0 20px 50px rgba(232, 138, 158, 0.3);
 }
 
@@ -557,7 +598,6 @@ body {
     cursor: pointer;
     color: #d4728a;
     transition: all 0.3s;
-    line-height: 1;
 }
 
 .modal-close:hover {
@@ -567,6 +607,8 @@ body {
 
 .modal-body {
     margin-bottom: 1.5rem;
+    max-height: 60vh;
+    overflow-y: auto;
 }
 
 .modal-input, .modal-textarea {
@@ -577,16 +619,14 @@ body {
     border-radius: 20px;
     font-size: 1rem;
     background: white;
-    transition: all 0.3s;
 }
 
 .modal-input:focus, .modal-textarea:focus {
     outline: none;
     border-color: #e88a9e;
-    box-shadow: 0 0 0 3px rgba(232, 138, 158, 0.1);
 }
 
-/* 照片上传区域 */
+/* 文件上传 */
 .photo-upload-section {
     margin: 1rem 0;
 }
@@ -692,6 +732,7 @@ body {
     box-shadow: 0 5px 15px rgba(232, 138, 158, 0.15);
     cursor: pointer;
     transition: all 0.3s ease;
+    aspect-ratio: 1 / 1;
 }
 
 .gallery-item:hover {
@@ -701,7 +742,7 @@ body {
 
 .gallery-item img {
     width: 100%;
-    height: 250px;
+    height: 100%;
     object-fit: cover;
     transition: transform 0.3s;
 }
@@ -726,193 +767,32 @@ body {
     transform: translateY(0);
 }
 
-/* 照片放大模态框 */
-.photo-modal {
-    display: none;
-    position: fixed;
-    z-index: 1002;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    animation: fadeIn 0.3s;
+.gallery-description {
+    font-size: 0.9rem;
+    word-break: break-word;
 }
 
-.photo-modal-content {
-    margin: auto;
-    display: block;
-    max-width: 90%;
-    max-height: 80%;
-    object-fit: contain;
+.gallery-date {
+    font-size: 0.7rem;
+    opacity: 0.8;
+    margin-top: 0.3rem;
+}
+
+.gallery-delete-btn {
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
     border-radius: 20px;
-    animation: zoomIn 0.3s;
-}
-
-.photo-modal-caption {
-    text-align: center;
-    color: white;
-    padding: 1rem;
-    font-size: 1rem;
-}
-
-.photo-modal-close {
-    position: absolute;
-    top: 20px;
-    right: 35px;
-    color: white;
-    font-size: 40px;
+    color: #d4728a;
     cursor: pointer;
+    font-size: 12px;
     transition: all 0.3s;
 }
 
-.photo-modal-close:hover {
-    color: #e88a9e;
-    transform: rotate(90deg);
-}
-
-/* 花瓣动画优化 */
-#petalCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    z-index: 999;
-}
-
-/* 动画 */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(-50px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes zoomIn {
-    from {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* 响应式 */
-@media (max-width: 768px) {
-    .heartbeat-timer {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .timer-ecg {
-        width: 100%;
-        height: 80px;
-    }
-    
-    .timer-numbers {
-        gap: 1rem;
-    }
-    
-    .timer-value {
-        font-size: 1.5rem;
-    }
-    
-    .photo-gallery {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    }
-    
-    .gallery-item img {
-        height: 150px;
-    }
-    
-    .custom-modal-content {
-        margin: 20% auto;
-        width: 95%;
-    }
-}
-/* 模态框居中显示 */
-.custom-modal {
-    display: none;
-    position: fixed;
-    z-index: 1001;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    animation: fadeIn 0.3s;
-    justify-content: center;
-    align-items: center;
-}
-
-.custom-modal-content {
-    background: linear-gradient(135deg, #fff8fa, #fff0f3);
-    padding: 2rem;
-    border-radius: 30px;
-    width: 90%;
-    max-width: 500px;
-    animation: slideDown 0.3s;
-    box-shadow: 0 20px 50px rgba(232, 138, 158, 0.3);
-    margin: 0;
-    position: relative;
-}
-
-.large-modal {
-    max-width: 700px;
-}
-
-/* 照片放大模态框 */
-.photo-modal {
-    display: none;
-    position: fixed;
-    z-index: 1002;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    animation: fadeIn 0.3s;
-    justify-content: center;
-    align-items: center;
-}
-
-.photo-modal-content {
-    display: block;
-    max-width: 90%;
-    max-height: 80%;
-    object-fit: contain;
-    border-radius: 20px;
-    animation: zoomIn 0.3s;
-}
-
-/* 确保弹窗内容不抖动 */
-.modal-body {
-    margin-bottom: 1.5rem;
-    max-height: 60vh;
-    overflow-y: auto;
+.gallery-delete-btn:hover {
+    background: #e88a9e;
+    color: white;
 }
 
 /* 事件照片画廊 */
@@ -942,29 +822,108 @@ body {
     object-fit: cover;
 }
 
-/* 照片预览区域 */
-.photo-preview {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 0.5rem;
-    background: #fff5f7;
-    border-radius: 15px;
-}
-
-/* Toast提示优化 - 无抖动 */
-.toast-message {
+/* 照片放大模态框 */
+.photo-modal {
+    display: none;
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10000;
-    pointer-events: none;
+    z-index: 1002;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    justify-content: center;
+    align-items: center;
 }
 
-.toast-message.show {
-    pointer-events: auto;
+.photo-modal-content {
+    display: block;
+    max-width: 90%;
+    max-height: 80%;
+    object-fit: contain;
+    border-radius: 20px;
+}
+
+.photo-modal-caption {
+    text-align: center;
+    color: white;
+    padding: 1rem;
+    font-size: 1rem;
+}
+
+.photo-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.photo-modal-close:hover {
+    color: #e88a9e;
+    transform: rotate(90deg);
+}
+
+/* 花瓣动画 */
+#petalCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* 动画 */
+@keyframes heartbeat {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.2); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .heartbeat-timer {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .timer-ecg {
+        width: 100%;
+        height: 80px;
+    }
+    
+    .timer-numbers {
+        gap: 1rem;
+    }
+    
+    .timer-value {
+        font-size: 1.5rem;
+    }
+    
+    .photo-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .custom-modal-content {
+        width: 95%;
+        margin: 0;
+    }
 }

@@ -237,6 +237,19 @@ def add_message():
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
+# 删除留言
+@app.route('/api/messages/<int:message_id>', methods=['DELETE'])
+def delete_message(message_id):
+    try:
+        message = Message.query.get_or_404(message_id)
+        db.session.delete(message)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"删除留言错误: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/upload_timeline_photos', methods=['POST'])
 def upload_timeline_photos():
     try:
@@ -334,6 +347,50 @@ def get_photos():
     except Exception as e:
         print(f"获取照片错误: {e}")
         return jsonify([]), 500
+
+# 删除相册照片
+@app.route('/api/photos/<int:photo_id>', methods=['DELETE'])
+def delete_photo(photo_id):
+    try:
+        photo = Photo.query.get_or_404(photo_id)
+        
+        # 删除文件
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], photo.filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        
+        db.session.delete(photo)
+        db.session.commit()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"删除照片错误: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# 删除时间轴事件（不影响相册）
+@app.route('/api/timeline_events/<int:event_id>', methods=['DELETE'])
+def delete_timeline_event(event_id):
+    try:
+        event = TimelineEvent.query.get_or_404(event_id)
+        
+        # 删除时间轴关联的照片文件
+        for photo in event.photos:
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], photo.filename)
+            if os.path.exists(filepath):
+                os.remove(filepath)
+        
+        # 删除事件（级联删除 timeline_photo）
+        # 注意：不删除 Photo 表中的记录，相册中的照片保留
+        db.session.delete(event)
+        db.session.commit()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"删除事件错误: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 @app.route('/static/uploads/<filename>')
 def uploaded_file(filename):
