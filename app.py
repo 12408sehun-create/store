@@ -12,7 +12,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///love_story.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+# app.py 第18行附近修改
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/uploads')
+
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 # 允许的文件类型
@@ -381,10 +383,6 @@ def delete_timeline_event(event_id):
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
-
-@app.route('/static/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # 添加一个测试路由，查看数据库内容
 @app.route('/api/debug/db')
