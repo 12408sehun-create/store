@@ -677,7 +677,7 @@ function openPhotoModalWithDelete(imgSrc, caption, photoId) {
     modal.style.justifyContent = 'center';
     modal.style.alignItems = 'center';
     modalImg.src = imgSrc;
-    captionText.innerHTML = caption;
+    // captionText.innerHTML = caption;
 }
 // 恢复原来的 openPhotoModal 函数
 function openPhotoModal(imgSrc, caption) {
@@ -689,7 +689,7 @@ function openPhotoModal(imgSrc, caption) {
     modal.style.justifyContent = 'center';
     modal.style.alignItems = 'center';
     modalImg.src = imgSrc;
-    captionText.innerHTML = caption;
+    // captionText.innerHTML = caption;
 }
 
 // 优化花瓣动画 - 白色鸡蛋花
