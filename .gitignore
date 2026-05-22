@@ -1,0 +1,52 @@
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv/
+
+# Python 缓存文件
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# 数据库文件
+db.sqlite3
+*.db
+*.sqlite3
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# IDE 相关文件（可选）
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 日志文件
+*.log
+logs/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 分发/打包文件
+build/
+dist/
+*.egg-info/
+*.egg
+
+# 测试和覆盖率报告
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# 我的秘密文件（推荐添加）
+*.pem
+*.key
+private_key.txt
