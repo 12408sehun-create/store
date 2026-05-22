@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>love-store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <div class="nav-logo">❤️ Diary</div>
+            <ul class="nav-menu">
+                <li><a href="/" class="active">record</a></li>
+                <li><a href="/album">album</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 恋爱计时器 - 心电图效果 -->
+        <div class="timer-section">
+            <h1 class="section-title">Love Timer</h1>
+            
+            <div class="heartbeat-timer">
+                <div class="timer-avatar">
+                    <div class="avatar-image">👨</div>
+                    <div class="avatar-name">P</div>
+                </div>
+                
+                <div class="timer-ecg">
+                    <svg class="ecg-line" viewBox="0 0 400 100">
+                        <polyline class="ecg-path" points="
+                            0,50 
+                            50,50 
+                            70,50 
+                            80,20 
+                            90,80 
+                            100,50 
+                            120,50 
+                            140,50 
+                            150,30 
+                            160,70 
+                            170,50 
+                            200,50 
+                            230,50 
+                            245,20 
+                            260,80 
+                            275,50 
+                            300,50 
+                            320,50 
+                                            335,30 
+                                            350,70 
+                                            365,50 
+                                            400,50
+                        " fill="none" stroke="#e88a9e" stroke-width="2"/>
+                        <circle class="ecg-blink" cx="350" cy="50" r="3" fill="#e88a9e"/>
+                    </svg>
+                    <div class="heart-icon">❤️</div>
+                </div>
+                
+                <div class="timer-avatar">
+                    <div class="avatar-image">👩</div>
+                    <div class="avatar-name">A</div>
+                </div>
+            </div>
+            
+            <div class="timer-numbers">
+                <div class="timer-unit">
+                    <div class="timer-value" id="days">0</div>
+                    <div class="timer-label">d</div>
+                </div>
+                <div class="timer-unit">
+                    <div class="timer-value" id="hours">0</div>
+                    <div class="timer-label">h</div>
+                </div>
+                <div class="timer-unit">
+                    <div class="timer-value" id="minutes">0</div>
+                    <div class="timer-label">m</div>
+                </div>
+                <div class="timer-unit">
+                    <div class="timer-value" id="seconds">0</div>
+                    <div class="timer-label">s</div>
+                </div>
+            </div>
+            
+            <div class="date-picker-wrapper">
+                <input type="date" id="startDate" class="date-input">
+                <button onclick="setStartDate()" class="btn-primary">💕 Anniversary 💕</button>
+            </div>
+        </div>
+
+        <!-- 横向时间线 -->
+        <div class="timeline-section">
+            <h2 class="section-title">✨ Our time tunnel ✨</h2>
+            <button onclick="openAddEventModal()" class="btn-primary add-event-btn">✨ Add new memories ✨</button>
+            <div class="horizontal-timeline" id="timeline"></div>
+        </div>
+
+        <!-- 留言板 -->
+        <div class="message-board-section">
+            <h2 class="section-title">💬 Message 💬</h2>
+            <div class="avatar-buttons">
+                <button onclick="openMessageModal('boy')" class="avatar-btn boy-btn">
+                    <div class="avatar-icon">👨</div>
+                    <span>P</span>
+                </button>
+                <button onclick="openMessageModal('girl')" class="avatar-btn girl-btn">
+                    <div class="avatar-icon">👩</div>
+                    <span>A</span>
+                </button>
+            </div>
+            <div class="messages-list" id="messagesList"></div>
+        </div>
+    </div>
+
+    <!-- 添加事件模态框 -->
+    <div id="addEventModal" class="custom-modal">
+        <div class="custom-modal-content large-modal">
+            <div class="modal-header">
+                <h3>📝 Add new memories</h3>
+                <span class="modal-close" onclick="closeAddEventModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="eventTitle" placeholder="Event Title" class="modal-input">
+                <input type="date" id="eventDate" class="modal-input">
+                <textarea id="eventDesc" placeholder="Event Description (Optional)" rows="3" class="modal-textarea"></textarea>
+
+                <div class="photo-upload-section">
+                    <label>📸 Add Photos (Multiple Selection Allowed)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="eventPhotos" multiple accept="image/*" onchange="previewEventPhotos()">
+                        <div class="file-input-label">Click to Select Photos</div>
+                    </div>
+                    <div class="photo-preview" id="photoPreview">
+                        <p style="color:#c0a0ac;text-align:center;">No photos selected</p>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button onclick="addTimelineEvent()" class="btn-primary">💖 Create 💖</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看事件详情模态框 -->
+    <div id="viewEventModal" class="custom-modal">
+        <div class="custom-modal-content large-modal">
+            <div class="modal-header">
+                <h3 id="viewEventTitle">事件详情</h3>
+                <span class="modal-close" onclick="closeViewEventModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="viewEventDate" style="color:#e88a9e; margin-bottom:0.5rem;"></p>
+                <p id="viewEventDesc" style="color:#b88a9a; line-height:1.6;"></p>
+                <div class="event-photos-gallery" id="viewEventPhotos"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 留言模态框 -->
+    <div id="messageModal" class="custom-modal">
+        <div class="custom-modal-content">
+            <div class="modal-header">
+                <h3>💬 Whisper</h3>
+                <span class="modal-close" onclick="closeMessageModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="modalAvatar" style="text-align:center; margin-bottom:1rem;"></div>
+                <textarea id="messageContent" placeholder="I want to say..." rows="4" class="modal-textarea"></textarea>
+            </div>
+            <div style="text-align: center;">
+                <button onclick="addMessage()" class="btn-primary">💕 Post Message 💕</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="petalCanvas"></canvas>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
