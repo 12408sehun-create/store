@@ -104,7 +104,7 @@ function loadTimelineEvents() {
             
             timeline.innerHTML = '';
             if (events.length === 0) {
-                timeline.innerHTML = '<div style="text-align:center;padding:2rem;color:#d4728a;">暂无回忆，点击"添加新的回忆"开始记录吧 ❤️</div>';
+                timeline.innerHTML = '<div style="text-align:center;padding:2rem;color:#d4728a;">Click to add a new memory! ❤️</div>';
                 return;
             }
             

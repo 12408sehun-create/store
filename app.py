@@ -180,16 +180,6 @@ def add_timeline_event():
             )
             db.session.add(timeline_photo)
             print(f"  添加照片 {idx+1}: {filename}")
-            
-            # 同时也添加到相册
-            photo = Photo(
-                filename=filename,
-                original_filename=filename,
-                description=f"来自时光隧道：{title}",
-                event_id=event.id
-            )
-            db.session.add(photo)
-        
         db.session.commit()
         print(f"✓ 事件保存成功，共 {len(photo_filenames)} 张照片")
         
